@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pennsylvania Housing Stability Toolkit — Prototype</title>
+
+  <style>
+    :root{
+      /* Official / gov-like palette */
+      --bg: #ffffff;
+      --text: #0b1220;
+      --muted: #4b5565;
+      --muted2:#6b7280;
+
+      --border: #d7dde6;
+      --border2:#e6ebf2;
+      --panel:#ffffff;
+
+      --brand:#1f4e8c;        /* PA-style deep blue */
+      --brand2:#163b6a;
+      --accent:#0b63ce;       /* link/cta blue */
+      --accentHover:#084c9c;
+
+      --good:#1a7f37;
+      --warn:#b54708;
+      --bad:#b42318;
+
+      --shadow: 0 2px 10px rgba(15, 23, 42, .08);
+      --shadow2: 0 1px 4px rgba(15, 23, 42, .08);
+
+      --r: 10px;
+      --r2: 14px;
+
+      --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height:1.35;
+    }
+
+    a{ color: var(--accent); text-decoration: underline; }
+    a:hover{ color: var(--accentHover); }
+
+    /* ====== Government-style header ====== */
+    .banner{
+      background: var(--brand);
+      color: #fff;
+      border-bottom: 4px solid #f2c100; /* subtle “official” accent (gold) */
+    }
+    .bannerInner{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .agency{
+      display:flex; align-items:center; gap:12px;
+      min-width: 260px;
+    }
+    .seal{
+      width:42px; height:42px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.35);
+      display:grid; place-items:center;
+      font-weight: 800;
+      letter-spacing:.5px;
+    }
+    .agencyTitle{
+      display:flex; flex-direction:column;
+    }
+    .agencyTitle .top{
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .agencyTitle .sub{
+      font-size: 12px;
+      opacity: .9;
+    }
+    .bannerActions{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.25);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.12);
+    }
+
+    /* ====== Page container ====== */
+    .wrap{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 18px 16px 80px;
+    }
+
+    /* ====== Title block ====== */
+    .pageTitle{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      padding: 14px 0 10px;
+    }
+    .pageTitle h1{
+      margin:0;
+      font-size: 20px;
+      font-weight: 750;
+      letter-spacing: .2px;
+    }
+    .pageTitle p{
+      margin:6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 760px;
+    }
+
+    /* ====== Navigation tabs (government portal style) ====== */
+    .nav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      border-radius: var(--r2);
+      padding: 8px;
+      box-shadow: var(--shadow2);
+    }
+    .tab{
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor:pointer;
+      color: #111827;
+    }
+    .tab:hover{
+      background: #eef2f7;
+      border-color: #e2e8f0;
+    }
+    .tab.active{
+      background: #ffffff;
+      border-color: #cbd5e1;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
+      font-weight: 650;
+    }
+
+    /* ====== Layout ====== */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.35fr .85fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+
+    /* ====== Cards ====== */
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .hd{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border2);
+      display:flex; justify-content:space-between; gap:12px; align-items:flex-start;
+      background: #fbfcfe;
+    }
+    .hd h2{ margin:0; font-size: 15px; font-weight: 750; }
+    .hd p{ margin:6px 0 0; color: var(--muted); font-size: 12.5px; }
+    .bd{ padding: 14px; }
+
+    /* ====== Buttons (official style) ====== */
+    .btn{
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0b1220;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-size: 13px;
+      transition: background .12s ease, border-color .12s ease, transform .06s ease;
+    }
+    .btn:hover{ background:#f3f6fb; border-color:#b9c5d6; }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.primary{
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn.primary:hover{
+      background: var(--accentHover);
+      border-color: var(--accentHover);
+    }
+    .btn.danger{
+      background: #fff;
+      border-color: #f1b2ae;
+      color: var(--bad);
+    }
+    .btn.danger:hover{
+      background:#fff5f5;
+      border-color:#e78c85;
+    }
+
+    /* ====== Status / KPI ====== */
+    .kpiRow{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 720px){ .kpiRow{ grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 420px){ .kpiRow{ grid-template-columns: 1fr; } }
+
+    .kpi{
+      border: 1px solid var(--border2);
+      background: #fff;
+      border-radius: var(--r);
+      padding: 10px;
+    }
+    .kpi .label{ font-size: 12px; color: var(--muted2); }
+    .kpi .value{ margin-top: 6px; font-family: var(--mono); font-size: 14px; font-weight: 700; }
+
+    .riskTag{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .dot{ width:10px; height:10px; border-radius: 50%; }
+    .dot.good{ background: var(--good); }
+    .dot.warn{ background: var(--warn); }
+    .dot.bad{ background: var(--bad); }
+
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: #eef2f7;
+      border: 1px solid #e2e8f0;
+      overflow:hidden;
+      margin-top: 8px;
+    }
+    .bar > div{
+      height:100%;
+      width:50%;
+      background: linear-gradient(90deg, #1a7f37, #b54708, #b42318);
+      transition: width .35s ease;
+    }
+
+    .muted{ color: var(--muted); }
+
+    .sep{ height:1px; background: var(--border2); margin: 12px 0; }
+
+    /* ====== Forms ====== */
+    label{ display:block; font-size:12px; color: var(--muted2); margin-bottom:6px; }
+    select,input,textarea{
+      width:100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 10px;
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+    }
+    select:focus,input:focus,textarea:focus{
+      border-color: #86b6ff;
+      box-shadow: 0 0 0 3px rgba(11,99,206,.15);
+    }
+    textarea{ min-height: 92px; resize: vertical; }
+
+    .qRow{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 720px){ .qRow{ grid-template-columns: 1fr; } }
+
+    /* ====== Simulator actions ====== */
+    .actionsGrid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 620px){ .actionsGrid{ grid-template-columns: 1fr; } }
+
+    .actionBtn{
+      text-align:left;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--r);
+      padding: 12px;
+      cursor:pointer;
+      transition: background .12s ease, border-color .12s ease, transform .06s ease;
+    }
+    .actionBtn:hover{
+      background:#f7faff;
+      border-color:#c8d5ea;
+    }
+    .actionBtn:active{ transform: translateY(1px); }
+    .actionBtn .t{ font-weight: 750; font-size: 13px; }
+    .actionBtn .d{ margin-top:6px; font-size: 12.5px; color: var(--muted); }
+    .impact{
+      margin-top: 10px;
+      display:flex; gap:8px; flex-wrap:wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #1f2937;
+    }
+    .impact span{
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px dashed #cbd5e1;
+      background: #f8fafc;
+    }
+
+    /* ====== Checklist ====== */
+    .checklist{ display:grid; gap:10px; }
+    .item{
+      display:flex; gap:10px; align-items:flex-start;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px;
+      background: #fff;
+    }
+    .item input{ width:auto; margin-top:2px; }
+    .item .t{ font-weight: 750; font-size: 13px; }
+    .item .d{ margin-top: 4px; font-size: 12.5px; color: var(--muted); }
+
+    /* ====== Timeline ====== */
+    .timeline{ display:grid; gap:10px; }
+    .step{
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--r);
+      padding: 12px;
+      background: #fff;
+    }
+    .step .k{ font-family: var(--mono); font-size: 12px; color: #374151; }
+    .step .t{ margin-top: 6px; font-weight: 800; font-size: 13px; }
+    .step .d{ margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+
+    /* ====== Log ====== */
+    .log{
+      display:flex; flex-direction:column; gap:10px;
+      max-height: 420px; overflow:auto; padding-right: 4px;
+    }
+    .entry{
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px;
+      background: #fff;
+    }
+    .entry .meta{
+      display:flex; justify-content:space-between; gap:10px;
+      font-size: 12px; color: var(--muted2);
+    }
+    .entry .txt{
+      margin-top: 8px;
+      font-size: 12.8px;
+      color:#111827;
+      white-space: pre-wrap;
+    }
+
+    /* ====== Footer note ====== */
+    .footerNote{
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border2);
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.5;
+    }
+
+    .hidden{ display:none !important; }
+
+    /* ====== Modal ====== */
+    .modalBack{
+      position:fixed; inset:0;
+      background: rgba(15, 23, 42, .35);
+      display:none; align-items:center; justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modal{
+      width: min(860px, 100%);
+      border-radius: var(--r2);
+      border: 1px solid var(--border);
+      background: #fff;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal .mhd{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border2);
+      background: #fbfcfe;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .modal .mhd h3{ margin:0; font-size: 14px; font-weight: 800; }
+    .modal .mbd{ padding: 14px; }
+    .list{
+      margin:0;
+      padding-left: 18px;
+      color: #111827;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Government-like banner -->
+  <header class="banner">
+    <div class="bannerInner">
+      <div class="agency">
+        <div class="seal">PA</div>
+        <div class="agencyTitle">
+          <div class="top">Commonwealth of Pennsylvania (Prototype)</div>
+          <div class="sub">Housing Stability Toolkit — education & navigation only (not legal advice)</div>
+        </div>
+      </div>
+      <div class="bannerActions">
+        <div class="pill" title="This prototype runs locally in your browser. No data is stored.">
+          🛡️ Local-only <span class="kbd">No Storage</span>
+        </div>
+        <button class="btn" id="btnHelp" style="border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.10); color:#fff;">How it works</button>
+        <button class="btn" id="btnExport" style="border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.10); color:#fff;">Export plan</button>
+        <button class="btn" id="btnReset" style="border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.10); color:#fff;">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="pageTitle">
+      <div>
+        <h1>Pennsylvania Housing Stability Toolkit (Prototype)</h1>
+        <p>
+          A guided, state-inspired prototype for renters facing housing instability.
+          Use the wizard to generate a tailored plan, then review the timeline, checklist, scripts, and resources.
+        </p>
+      </div>
+    </div>
+
+    <nav class="nav" role="tablist" aria-label="Toolkit Navigation">
+      <button class="tab active" data-view="wizard">1) Guided Wizard</button>
+      <button class="tab" data-view="sim">2) Scenario Simulator</button>
+      <button class="tab" data-view="timeline">3) Timeline</button>
+      <button class="tab" data-view="checklist">4) Document Checklist</button>
+      <button class="tab" data-view="scripts">5) Scripts Generator</button>
+      <button class="tab" data-view="resources">6) Resource Finder</button>
+    </nav>
+
+    <section class="grid">
+      <!-- MAIN -->
+      <div class="card">
+        <div class="hd">
+          <div>
+            <h2 id="mainTitle">Guided Wizard</h2>
+            <p id="mainDesc">Answer key questions. The toolkit generates a tailored plan and next steps.</p>
+          </div>
+          <div class="riskTag">
+            <span class="dot warn" id="riskDot"></span>
+            <span id="riskLabel">Medium Risk</span>
+          </div>
+        </div>
+
+        <div class="bd">
+          <!-- KPIs -->
+          <div class="kpiRow">
+            <div class="kpi"><div class="label">DAY</div><div class="value" id="kDay">1 / 7</div></div>
+            <div class="kpi"><div class="label">RISK</div><div class="value" id="kRisk">50</div></div>
+            <div class="kpi"><div class="label">RENT ARREARS</div><div class="value" id="kArrears">$0</div></div>
+            <div class="kpi"><div class="label">RESOURCES</div><div class="value" id="kRes">0</div></div>
+          </div>
+
+          <div class="muted" style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+            <div>Risk meter (lower is better)</div>
+            <div class="kbd" id="riskNum">50</div>
+          </div>
+          <div class="bar" aria-label="Risk meter"><div id="riskFill"></div></div>
+
+          <div class="sep"></div>
+
+          <!-- Wizard -->
+          <div id="view_wizard">
+            <div class="qRow">
+              <div>
+                <label>Where are you in the process?</label>
+                <select id="qStage">
+                  <option value="threat">No formal notice yet (landlord threatening)</option>
+                  <option value="notice">I received an eviction notice / letter</option>
+                  <option value="court">I have a court date scheduled</option>
+                  <option value="missed">I missed a court date / default judgment risk</option>
+                </select>
+              </div>
+              <div>
+                <label>How many days until the next deadline (if any)?</label>
+                <select id="qDeadline">
+                  <option value="unknown">Not sure</option>
+                  <option value="7">About a week</option>
+                  <option value="3">Within 3 days</option>
+                  <option value="1">Within 24 hours</option>
+                </select>
+              </div>
+              <div>
+                <label>County (prototype list)</label>
+                <select id="qCounty">
+                  <option value="Philadelphia">Philadelphia County</option>
+                  <option value="Allegheny">Allegheny County</option>
+                  <option value="Dauphin">Dauphin County</option>
+                  <option value="Montgomery">Montgomery County</option>
+                  <option value="Other">Other / Unknown</option>
+                </select>
+              </div>
+              <div>
+                <label>Can you pay anything this week?</label>
+                <select id="qPay">
+                  <option value="none">No</option>
+                  <option value="some">A small amount</option>
+                  <option value="plan">I can follow a payment plan</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+              <button class="btn primary" id="btnGenerate">Generate my plan</button>
+              <button class="btn" id="btnQuickReduce">Quick risk-reduction (auto)</button>
+              <button class="btn" onclick="setView('timeline')">Go to timeline</button>
+            </div>
+
+            <div class="sep"></div>
+
+            <div style="font-weight:800;">Your generated plan</div>
+            <p class="muted" style="margin:6px 0 0;">
+              The plan updates based on your answers. This prototype is navigation support only (not legal advice).
+            </p>
+
+            <div id="planOut" class="card" style="margin-top:10px; box-shadow:none;">
+              <div class="bd">
+                <div class="muted">Fill out the wizard and click “Generate my plan”.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulator -->
+          <div id="view_sim" class="hidden">
+            <div class="muted">Choose an action for today (each click changes risk, arrears, and resources):</div>
+            <div class="actionsGrid" id="simActions"></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+              <button class="btn primary" id="btnNextDay">Advance Day</button>
+              <button class="btn" id="btnUndo">Undo last</button>
+            </div>
+
+            <div class="footerNote">
+              Simulator note: negotiation is more effective after documentation/support (represented by “resources”).
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div id="view_timeline" class="hidden">
+            <div class="timeline" id="timelineOut"></div>
+            <div class="footerNote">Prototype note: deadlines and options vary by county and case.</div>
+          </div>
+
+          <!-- Checklist -->
+          <div id="view_checklist" class="hidden">
+            <div class="muted" style="display:flex; justify-content:space-between; align-items:center;">
+              <div>Checklist completion</div>
+              <div class="kbd" id="checkPct">0%</div>
+            </div>
+            <div class="bar"><div id="checkFill" style="width:0%"></div></div>
+            <div class="sep"></div>
+            <div class="checklist" id="checklist"></div>
+          </div>
+
+          <!-- Scripts -->
+          <div id="view_scripts" class="hidden">
+            <div class="qRow">
+              <div>
+                <label>Script type</label>
+                <select id="sType">
+                  <option value="call">Phone call to Legal Aid</option>
+                  <option value="email">Email to Landlord (payment plan request)</option>
+                  <option value="text">Text message (short + polite)</option>
+                  <option value="court">Statement for Court (high-level, non-legal)</option>
+                </select>
+              </div>
+              <div>
+                <label>Your name (optional)</label>
+                <input id="sName" placeholder="e.g., Yutong Meng" />
+              </div>
+            </div>
+
+            <label style="margin-top:10px;">Key details (optional)</label>
+            <textarea id="sDetails" placeholder="e.g., I received a notice on Feb 20, I can pay $200 this week, I’m applying for assistance..."></textarea>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+              <button class="btn primary" id="btnMakeScript">Generate script</button>
+              <button class="btn" id="btnCopyScript">Copy</button>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="card" style="box-shadow:none;">
+              <div class="bd" id="scriptOut"><span class="muted">Pick a script type and click “Generate script”.</span></div>
+            </div>
+          </div>
+
+          <!-- Resources -->
+          <div id="view_resources" class="hidden">
+            <div class="qRow">
+              <div>
+                <label>County</label>
+                <select id="rCounty">
+                  <option value="Philadelphia">Philadelphia County</option>
+                  <option value="Allegheny">Allegheny County</option>
+                  <option value="Dauphin">Dauphin County</option>
+                  <option value="Montgomery">Montgomery County</option>
+                  <option value="Other">Other / Unknown</option>
+                </select>
+              </div>
+              <div>
+                <label>Need</label>
+                <select id="rNeed">
+                  <option value="legal">Legal aid / tenant hotline</option>
+                  <option value="rent">Emergency rent assistance</option>
+                  <option value="mediation">Mediation / negotiation support</option>
+                  <option value="docs">Document checklist</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+              <button class="btn primary" id="btnFindRes">Find resources</button>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="card" style="box-shadow:none;">
+              <div class="bd" id="resOut"><span class="muted">Select county + need, then click “Find resources”.</span></div>
+            </div>
+
+            <div class="footerNote">
+              Prototype note: sample entries only. A real deployment would integrate official directories and county-specific guidance.
+            </div>
+          </div>
+
+          <div class="footerNote">
+            <strong>Disclaimer:</strong> Educational/navigation only. Not legal advice. Deadlines and eligibility vary by county and case.
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDE: Log / Status -->
+      <aside class="card">
+        <div class="hd">
+          <div>
+            <h2>Activity Log</h2>
+            <p>Records wizard outputs and simulation decisions (local-only).</p>
+          </div>
+          <div class="riskTag">
+            <span class="dot warn"></span>
+            <span>Prototype</span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="log" id="log"></div>
+
+          <div class="footerNote">
+            <strong>Suggested workflow:</strong>
+            1) Run the wizard → 2) Review timeline → 3) Complete checklist → 4) Generate scripts → 5) Use simulator to test decisions.
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div class="modalBack" id="modalBack">
+    <div class="modal">
+      <div class="mhd">
+        <h3 id="modalTitle">How it works</h3>
+        <button class="btn" id="btnCloseModal">Close</button>
+      </div>
+      <div class="mbd" id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+  // ====== State ======
+  let state = {
+    day: 1,
+    risk: 50,
+    arrears: 900,
+    resources: 1,
+    county: "Philadelphia",
+    stage: "threat",
+    deadline: "unknown"
+  };
+  let history = [];
+  let logEntries = [];
+  let checklistState = {};
+
+  // ====== Helpers ======
+  const $ = (id)=>document.getElementById(id);
+  const clamp=(n,a,b)=>Math.max(a, Math.min(b,n));
+  const fmtMoney=(x)=>("$"+Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const nowStamp=()=>{
+    const d=new Date();
+    return d.toLocaleString([], {hour:'2-digit', minute:'2-digit'})+" • "+d.toLocaleDateString();
+  };
+  const riskTier=(r)=> (r<=35?"low":(r<=65?"med":"high"));
+
+  // ====== Log ======
+  function pushLog(text, kind="system"){
+    logEntries.unshift({when: nowStamp(), text, kind});
+    renderLog();
+  }
+  function renderLog(){
+    const box = $("log");
+    box.innerHTML = "";
+    if(logEntries.length===0){
+      box.innerHTML = `<div class="entry"><div class="meta"><span class="muted">—</span><span class="muted">—</span></div>
+        <div class="txt muted">No activity yet. Start with the Guided Wizard.</div></div>`;
+      return;
+    }
+    logEntries.forEach(e=>{
+      const div=document.createElement("div");
+      div.className="entry";
+      div.innerHTML = `<div class="meta"><span>${e.kind==="sim"?"Simulation":"System"}</span><span>${e.when}</span></div>
+        <div class="txt">${e.text}</div>`;
+      box.appendChild(div);
+    });
+  }
+
+  // ====== KPIs ======
+  function renderKPIs(){
+    $("kDay").textContent = `${state.day} / 7`;
+    $("kRisk").textContent = `${state.risk}`;
+    $("kArrears").textContent = fmtMoney(state.arrears);
+    $("kRes").textContent = `${state.resources}`;
+
+    $("riskNum").textContent = `${state.risk}`;
+    $("riskFill").style.width = `${clamp(state.risk,0,100)}%`;
+
+    const tier = riskTier(state.risk);
+    $("riskLabel").textContent = tier==="low"?"Low Risk":tier==="med"?"Medium Risk":"High Risk";
+    const dot = $("riskDot");
+    dot.classList.remove("good","warn","bad");
+    dot.classList.add(tier==="low"?"good":tier==="med"?"warn":"bad");
+  }
+
+  // ====== Tabs / Views ======
+  const views = ["wizard","sim","timeline","checklist","scripts","resources"];
+  function setView(v){
+    views.forEach(x=>{
+      $("view_"+x).classList.toggle("hidden", x!==v);
+    });
+    document.querySelectorAll(".tab").forEach(t=>{
+      t.classList.toggle("active", t.dataset.view===v);
+    });
+    const titleMap = {
+      wizard:["Guided Wizard","Answer key questions. The toolkit generates a tailored plan and next steps."],
+      sim:["Scenario Simulator","Try decisions and see risk/arrears/resources change."],
+      timeline:["Timeline","A 7-day action timeline updated from your wizard answers."],
+      checklist:["Document Checklist","A practical checklist with completion tracking."],
+      scripts:["Scripts Generator","Generate copy-ready call/email/text templates."],
+      resources:["Resource Finder","Prototype county-based resources (sample entries)."]
+    };
+    $("mainTitle").textContent = titleMap[v][0];
+    $("mainDesc").textContent  = titleMap[v][1];
+    if(v==="timeline") renderTimeline();
+    if(v==="checklist") renderChecklist();
+  }
+
+  // ====== Wizard Logic ======
+  function computeBaseFromWizard(){
+    const stage = $("qStage").value;
+    const dl = $("qDeadline").value;
+    const county = $("qCounty").value;
+    const pay = $("qPay").value;
+
+    state.stage = stage;
+    state.deadline = dl;
+    state.county = county;
+
+    let r = 45;
+    if(stage==="threat") r = 48;
+    if(stage==="notice") r = 62;
+    if(stage==="court")  r = 70;
+    if(stage==="missed") r = 82;
+
+    if(dl==="7") r += 2;
+    if(dl==="3") r += 8;
+    if(dl==="1") r += 14;
+
+    let a = 900;
+    if(pay==="none") a = 1400;
+    if(pay==="some") a = 1100;
+    if(pay==="plan") a = 950;
+
+    let res = (stage==="threat") ? 2 : 1;
+    if(stage==="missed") res = 0;
+
+    state.risk = clamp(r, 0, 100);
+    state.arrears = a;
+    state.resources = res;
+    state.day = 1;
+  }
+
+  function generatePlanHTML(){
+    const s = state.stage;
+    const dl = state.deadline;
+    const county = state.county;
+
+    const urgency = (dl==="1" || s==="missed") ? "HIGH" : (dl==="3" || s==="court") ? "MEDIUM-HIGH" : "MEDIUM";
+    const first24 = [
+      "Do not ignore court mail or notices. Write down deadlines and keep all paperwork together.",
+      "Contact local legal aid / tenant hotline to confirm the next urgent deadline and what to submit.",
+      "Gather: lease, notices, payment receipts, income proof, and messages with your landlord."
+    ];
+    const next3days = [
+      "If possible, apply for emergency rent assistance (processing time varies).",
+      "Request a written payment plan (ask for terms in writing).",
+      "Prepare a one-page timeline: when notice received, payments made, and key events."
+    ];
+    const nextWeek = [
+      "Bring documentation to any intake/court/mediation appointment.",
+      "Keep copies of everything (photos or scans).",
+      "If you get a new notice, update your deadlines immediately."
+    ];
+
+    if(s==="missed") first24.unshift("Urgent: ask legal aid about options after a missed date (deadlines may be short).");
+    if(s==="threat") first24.unshift("Prevention mode: start documentation now before formal notices begin.");
+
+    return `
+      <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+        <div>
+          <div style="font-weight:800; font-size:13.5px;">Plan summary</div>
+          <div class="muted" style="margin-top:6px; font-size:12.5px;">
+            County: <span style="font-family:var(--mono);">${county}</span> &nbsp;|&nbsp;
+            Urgency: <span style="font-family:var(--mono);">${urgency}</span> &nbsp;|&nbsp;
+            Stage: <span style="font-family:var(--mono);">${s}</span>
+          </div>
+        </div>
+        <button class="btn" onclick="setView('timeline')">Open timeline</button>
+      </div>
+      <div class="sep"></div>
+      <div style="font-weight:800; font-size:13px;">Next 24 hours</div>
+      <ul class="list">${first24.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div style="font-weight:800; font-size:13px; margin-top:10px;">Next 3 days</div>
+      <ul class="list">${next3days.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div style="font-weight:800; font-size:13px; margin-top:10px;">Next 7 days</div>
+      <ul class="list">${nextWeek.map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div class="sep"></div>
+      <div class="muted" style="font-size:12.5px;">
+        This plan is navigation support only. Real deadlines vary. Use “Resource Finder” and “Scripts Generator” for actionable next steps.
+      </div>
+    `;
+  }
+
+  // ====== Simulator ======
+  const ACTIONS = [
+    { id:"legal_aid", title:"Contact legal aid today", desc:"Unlock support + checklist. Strong risk reduction.",
+      effect:(s)=>({ risk:-14, resources:+2, arrears:0, note:"You completed intake and received a document checklist."}) },
+    { id:"docs", title:"Gather documents & evidence", desc:"Lease, notices, receipts, income proof. Helps everywhere.",
+      effect:(s)=>({ risk:-8, resources:+1, arrears:0, note:"You organized a folder with critical documents."}) },
+    { id:"negotiate", title:"Negotiate a payment plan", desc:"More effective after documentation/support.",
+      effect:(s)=>{ const prepared = s.resources>=2;
+        return { risk: prepared?-10:-4, resources:+0, arrears: prepared?-150:-50,
+          note: prepared? "Landlord agreed to a written plan after you provided proof." : "Talk started, but landlord requested documentation and a deadline."};
+      }},
+    { id:"apply", title:"Apply for emergency rent assistance", desc:"May reduce arrears; processing takes time.",
+      effect:(s)=>({ risk:-6, resources:+2, arrears:-250, note:"Application submitted; processing may take days."}) },
+    { id:"wait", title:"Wait and do nothing today", desc:"Time pressure increases risk and limits options.",
+      effect:(s)=>({ risk:+10, resources:+0, arrears:+80, note:"Deadlines moved closer; you lost preparation time."}) },
+    { id:"ignore", title:"Ignore / avoid", desc:"Highest risk; missing deadlines can remove options fast.",
+      effect:(s)=>({ risk:+18, resources:-1, arrears:+120, note:"You missed key steps; options narrowed quickly."}) },
+  ];
+
+  function previewImpact(act){
+    const eff = act.effect(structuredClone(state));
+    const parts = [];
+    if(eff.risk) parts.push(`Risk ${eff.risk>0?"+":""}${eff.risk}`);
+    if(eff.arrears) parts.push(`Arrears ${eff.arrears>0?"+":""}${fmtMoney(eff.arrears)}`);
+    if(eff.resources) parts.push(`Resources ${eff.resources>0?"+":""}${eff.resources}`);
+    if(parts.length===0) parts.push("No immediate change");
+    return parts;
+  }
+  function renderSimActions(){
+    const box = $("simActions");
+    box.innerHTML = "";
+    ACTIONS.forEach(act=>{
+      const btn=document.createElement("button");
+      btn.className="actionBtn";
+      const impacts = previewImpact(act);
+      btn.innerHTML = `
+        <div class="t">${act.title}</div>
+        <div class="d">${act.desc}</div>
+        <div class="impact">${impacts.map(x=>`<span>${x}</span>`).join("")}</div>
+      `;
+      btn.onclick = ()=>takeAction(act.id);
+      box.appendChild(btn);
+    });
+  }
+  function takeAction(id){
+    const act = ACTIONS.find(a=>a.id===id);
+    if(!act) return;
+
+    history.push({state: structuredClone(state), log: structuredClone(logEntries)});
+    const eff = act.effect(state);
+    state.risk = clamp(state.risk + (eff.risk||0), 0, 100);
+    state.arrears = Math.max(0, state.arrears + (eff.arrears||0));
+    state.resources = Math.max(0, state.resources + (eff.resources||0));
+
+    pushLog(`Day ${state.day}: ${act.title}\n${eff.note}`, "sim");
+    renderAll();
+  }
+  function advanceDay(){
+    history.push({state: structuredClone(state), log: structuredClone(logEntries)});
+    state.day = Math.min(7, state.day + 1);
+
+    const latePenalty = (state.day>=5 && state.risk>65) ? 6 : 2;
+    state.risk = clamp(state.risk + latePenalty, 0, 100);
+    state.arrears = Math.max(0, state.arrears + 60);
+
+    pushLog(`Advanced to Day ${state.day}. Time pressure slightly increased risk.`, "system");
+    renderAll();
+
+    if(state.day===7){
+      const r = state.risk;
+      let ending = (r<=35)
+        ? "Stabilized: You built a plan, got support, and reduced immediate risk."
+        : (r<=65)
+          ? "At Risk: Some steps were taken, but key gaps remain."
+          : "Eviction likely: Risk stayed high. Seek urgent legal help.";
+      openModal("Final outcome", `<p style="margin:0 0 10px; line-height:1.5;"><strong>${ending}</strong></p>
+        <p class="muted" style="margin:0; line-height:1.5;">Prototype note: real deadlines and options vary by county and case.</p>`);
+    }
+  }
+  function undo(){
+    const snap = history.pop();
+    if(!snap) return;
+    state = structuredClone(snap.state);
+    logEntries = structuredClone(snap.log);
+    renderAll();
+  }
+
+  // ====== Timeline ======
+  function renderTimeline(){
+    const out = $("timelineOut");
+    const stage = state.stage;
+    const dl = state.deadline;
+
+    const urgency = (dl==="1" || stage==="missed") ? "HIGH" : (dl==="3" || stage==="court") ? "MEDIUM-HIGH" : "MEDIUM";
+    const items = [
+      {k:"Day 0–1", t:"Stabilize information + deadlines", d:"Write down deadlines; collect all notices; contact legal aid/tenant hotline for county guidance."},
+      {k:"Day 1–3", t:"Build your evidence file", d:"Lease, receipts, income proof, communications. Prepare a one-page timeline of events."},
+      {k:"Day 1–3", t:"Start assistance pipelines", d:"Apply for emergency rent assistance (processing varies). Ask about mediation options."},
+      {k:"Day 3–7", t:"Negotiate in writing", d:"Request a written payment plan. Bring proof. Keep copies of communications."},
+      {k:"Day 3–7", t:"Court readiness (if applicable)", d:"If you have a court date, confirm what documents to bring and how to appear (in person/remote)."}
+    ];
+    if(urgency==="HIGH"){
+      items.unshift({k:"Within 24 hours", t:"Urgent step", d:"Ask legal aid about immediate options (missed date / imminent deadline). Do not wait."});
+    }
+    if(stage==="threat"){
+      items.unshift({k:"Right now", t:"Prevention mode", d:"Start documentation early before formal notices begin. Save messages and payment records."});
+    }
+    out.innerHTML = items.map(x=>`
+      <div class="step">
+        <div class="k">${x.k}</div>
+        <div class="t">${x.t}</div>
+        <div class="d">${x.d}</div>
+      </div>
+    `).join("");
+  }
+
+  // ====== Checklist ======
+  const CHECK_ITEMS = [
+    {id:"lease", t:"Lease agreement", d:"Include addenda, renewals, and any written rules."},
+    {id:"notices", t:"All notices / letters", d:"Take photos/scans; note the date received."},
+    {id:"receipts", t:"Payment receipts / bank statements", d:"Any proof of rent payments made."},
+    {id:"income", t:"Income proof", d:"Pay stubs, benefits statements, unemployment, etc."},
+    {id:"messages", t:"Messages with landlord", d:"Texts/emails about rent, repairs, deadlines."},
+    {id:"timeline", t:"One-page case timeline", d:"Dates: notice received, payments, key events."},
+    {id:"assist", t:"Assistance applications", d:"Screenshots/confirmation numbers if you applied."},
+    {id:"id", t:"ID + household info", d:"Basic ID + household members for some programs."}
+  ];
+
+  function renderChecklist(){
+    const box = $("checklist");
+    box.innerHTML = "";
+    CHECK_ITEMS.forEach(it=>{
+      if(checklistState[it.id]===undefined) checklistState[it.id]=false;
+      const div=document.createElement("div");
+      div.className="item";
+      div.innerHTML = `
+        <input type="checkbox" ${checklistState[it.id]?"checked":""} />
+        <div>
+          <div class="t">${it.t}</div>
+          <div class="d">${it.d}</div>
+        </div>
+      `;
+      div.querySelector("input").addEventListener("change",(e)=>{
+        checklistState[it.id]=e.target.checked;
+        updateChecklistProgress();
+      });
+      box.appendChild(div);
+    });
+    updateChecklistProgress();
+  }
+  function updateChecklistProgress(){
+    const total = CHECK_ITEMS.length;
+    const done = Object.values(checklistState).filter(Boolean).length;
+    const pct = Math.round((done/total)*100);
+    $("checkPct").textContent = `${pct}%`;
+    $("checkFill").style.width = `${pct}%`;
+  }
+
+  // ====== Scripts ======
+  function makeScript(){
+    const type = $("sType").value;
+    const name = $("sName").value.trim() || "—";
+    const details = $("sDetails").value.trim();
+    const county = state.county;
+
+    let out = "";
+    if(type==="call"){
+      out =
+`Hello, my name is ${name}. I’m calling because I’m facing a housing/eviction issue in ${county} County.
+I want to confirm my next deadline and what steps I should take immediately.
+
+Key details:
+${details || "(add your details here)"}
+
+Questions:
+1) What is the most urgent deadline I should not miss?
+2) What documents should I bring or submit?
+3) Are there emergency resources or rent assistance programs you recommend?
+
+Thank you for your time.`;
+    }
+    if(type==="email"){
+      out =
+`Subject: Request for a Written Payment Plan
+
+Hello,
+
+I’m writing about my rent balance. I want to resolve this and avoid escalation.
+I can pay a portion of the balance and would like to propose a written payment plan.
+
+Details:
+${details || "(add dates/amounts you can pay here)"}
+
+Please confirm if we can agree on a written plan and what documentation you need from me.
+
+Thank you,
+${name}`;
+    }
+    if(type==="text"){
+      out =
+`Hi, this is ${name}. I want to work on a payment plan and keep everything in writing.
+Can we agree on a plan for the next 2–4 weeks? I can share documentation if needed.`;
+    }
+    if(type==="court"){
+      out =
+`I am here to respond to this housing matter. I want to explain my situation clearly and provide documentation.
+I am actively working on resolving the balance, including applying for assistance and/or proposing a written payment plan.
+I have brought a folder of documents (lease, receipts, income proof, and notices).`;
+    }
+
+    $("scriptOut").textContent = out;
+    pushLog(`Generated a script (${type}).`, "system");
+  }
+
+  function copyScript(){
+    const text = $("scriptOut").textContent || "";
+    if(!text.trim()) return;
+    navigator.clipboard.writeText(text).then(()=>{
+      pushLog("Copied script to clipboard.", "system");
+      openModal("Copied", `<p style="margin:0">Script copied to clipboard.</p>`);
+    }).catch(()=>{
+      openModal("Copy failed", `<p class="muted" style="margin:0">Clipboard blocked by browser. Select and copy manually.</p>`);
+    });
+  }
+
+  // ====== Resources (sample dataset) ======
+  const RESOURCES = [
+    {county:"Philadelphia", need:"legal", name:"Legal Aid (Sample)", desc:"Tenant hotline + intake scheduling (sample entry)."},
+    {county:"Philadelphia", need:"rent", name:"Emergency Rent Assistance (Sample)", desc:"County program directory (sample entry)."},
+    {county:"Allegheny", need:"legal", name:"Tenant Support Line (Sample)", desc:"Local tenant hotline (sample entry)."},
+    {county:"Dauphin", need:"mediation", name:"Mediation Services (Sample)", desc:"Negotiation/mediation directory (sample entry)."},
+    {county:"Montgomery", need:"rent", name:"Assistance Navigator (Sample)", desc:"Benefits + rent assistance referral (sample entry)."},
+    {county:"Other", need:"legal", name:"Statewide Directory (Sample)", desc:"Use a statewide directory when county is unknown (sample entry)."},
+  ];
+  function findResources(){
+    const c = $("rCounty").value;
+    const n = $("rNeed").value;
+    const list = RESOURCES.filter(x=>x.county===c && x.need===n);
+    const out = $("resOut");
+    if(list.length===0){
+      out.innerHTML = `<span class="muted">No sample entries for this selection. In a real deployment, this would query official directories.</span>`;
+      return;
+    }
+    out.innerHTML = list.map(x=>`
+      <div style="font-weight:800;">${x.name}</div>
+      <div class="muted" style="margin-top:6px; line-height:1.5;">${x.desc}</div>
+      <div class="sep"></div>
+    `).join("").replace(/<div class="sep"><\/div>$/,"");
+    pushLog(`Resource lookup: ${c} • ${n}.`, "system");
+  }
+
+  // ====== Modal ======
+  function howHTML(){
+    return `
+      <ul class="list">
+        <li><strong>Guided Wizard:</strong> answer a few questions → generates a tailored plan.</li>
+        <li><strong>Scenario Simulator:</strong> click actions → watch risk/arrears/resources change.</li>
+        <li><strong>Timeline:</strong> a time-structured plan for the next 7 days.</li>
+        <li><strong>Checklist:</strong> practical documents to collect; completion bar updates.</li>
+        <li><strong>Scripts:</strong> copy-ready call/email/text templates.</li>
+        <li><strong>Resources:</strong> county-based finder (sample entries in this prototype).</li>
+      </ul>
+      <p class="muted" style="margin-top:10px;">This is a prototype. It stores no data and does not provide legal advice.</p>
+    `;
+  }
+  function openModal(title, bodyHTML){
+    $("modalTitle").textContent = title;
+    $("modalBody").innerHTML = bodyHTML;
+    $("modalBack").style.display = "flex";
+  }
+  function closeModal(){ $("modalBack").style.display="none"; }
+
+  // ====== Export ======
+  function exportPlan(){
+    const lines = [];
+    lines.push("Pennsylvania Housing Stability Toolkit — Export");
+    lines.push("---------------------------------------------");
+    lines.push(`County: ${state.county}`);
+    lines.push(`Stage: ${state.stage}`);
+    lines.push(`Deadline: ${state.deadline}`);
+    lines.push(`Day: ${state.day}/7`);
+    lines.push(`Risk: ${state.risk}`);
+    lines.push(`Rent arrears: ${fmtMoney(state.arrears)}`);
+    lines.push(`Resources: ${state.resources}`);
+    lines.push("");
+    lines.push("Activity log:");
+    logEntries.slice().reverse().forEach((e,i)=>{
+      lines.push(`${i+1}. [${e.when}] ${e.text.replaceAll("\n"," — ")}`);
+    });
+
+    const blob = new Blob([lines.join("\n")], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pa-housing-toolkit-export.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    pushLog("Exported plan file.", "system");
+  }
+
+  // ====== Render ======
+  function renderAll(){
+    renderKPIs();
+    renderSimActions();
+  }
+
+  // ====== Wire up ======
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.addEventListener("click", ()=>setView(t.dataset.view));
+  });
+
+  $("btnHelp").addEventListener("click", ()=>openModal("How it works", howHTML()));
+  $("btnCloseModal").addEventListener("click", closeModal);
+  $("modalBack").addEventListener("click", (e)=>{ if(e.target===$("modalBack")) closeModal(); });
+
+  $("btnGenerate").addEventListener("click", ()=>{
+    computeBaseFromWizard();
+    $("planOut").innerHTML = `<div class="bd">${generatePlanHTML()}</div>`;
+    pushLog("Generated a tailored plan from the wizard.", "system");
+    renderAll();
+  });
+
+  $("btnQuickReduce").addEventListener("click", ()=>{
+    history.push({state: structuredClone(state), log: structuredClone(logEntries)});
+    state.risk = clamp(state.risk - 10, 0, 100);
+    state.resources = Math.max(0, state.resources + 1);
+    pushLog("Auto: quick risk-reduction applied (prototype).", "system");
+    renderAll();
+  });
+
+  $("btnNextDay").addEventListener("click", advanceDay);
+  $("btnUndo").addEventListener("click", undo);
+
+  $("btnMakeScript").addEventListener("click", makeScript);
+  $("btnCopyScript").addEventListener("click", copyScript);
+
+  $("btnFindRes").addEventListener("click", findResources);
+
+  $("btnExport").addEventListener("click", exportPlan);
+
+  $("btnReset").addEventListener("click", ()=>{
+    state = {day:1,risk:50,arrears:900,resources:1,county:"Philadelphia",stage:"threat",deadline:"unknown"};
+    history = [];
+    logEntries = [];
+    checklistState = {};
+    $("planOut").innerHTML = `<div class="bd"><div class="muted">Fill out the wizard and click “Generate my plan”.</div></div>`;
+    $("scriptOut").innerHTML = `<span class="muted">Pick a script type and click “Generate script”.</span>`;
+    $("resOut").innerHTML = `<span class="muted">Select county + need, then click “Find resources”.</span>`;
+    pushLog("Reset the toolkit.", "system");
+    renderAll();
+    setView("wizard");
+  });
+
+  // init
+  pushLog("Prototype loaded. Start with the Guided Wizard.", "system");
+  renderAll();
+  setView("wizard");
+</script>
+</body>
+</html>
